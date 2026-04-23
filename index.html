@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculador de Sección - Motor Trifásico BT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-slate-950 text-slate-300 font-['Inter'] min-h-screen p-4 md:p-8 flex items-center justify-center">
+    <!-- Contenedor Principal #app-container -->
+    <div id="app-container" class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-start relative z-10">
+        
+        <!-- Background Decorators -->
+        <div class="fixed top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-blue-900/20 rounded-full blur-[120px] pointer-events-none"></div>
+        <div class="fixed bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-emerald-900/20 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <!-- Formulario de Entrada #calc-form -->
+        <div class="bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl">
+            <h1 class="text-2xl font-bold text-slate-400 mb-6 flex items-center gap-3">
+                <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                Calculador IRAM 2178-1
+            </h1>
+
+            <form id="calc-form" class="space-y-6">
+                <!-- Potencia -->
+                <div class="space-y-2">
+                    <label for="power-kw" class="block text-sm font-medium text-slate-400">Potencia del Motor (kW)</label>
+                    <div class="relative">
+                        <input type="number" id="power-kw" min="0.75" max="500" step="0.01" value="15" class="w-full bg-slate-950/50 border border-slate-700 rounded-lg px-4 py-3 text-blue-400 font-semibold focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all" placeholder="Ej: 15">
+                        <span class="absolute right-4 top-3 text-slate-500 text-sm font-medium">kW</span>
+                    </div>
+                </div>
+
+                <!-- Longitud -->
+                <div class="space-y-2">
+                    <label for="length-m" class="block text-sm font-medium text-slate-400">Longitud del Cable (m)</label>
+                    <div class="relative">
+                        <input type="number" id="length-m" min="1" max="2000" step="1" value="50" class="w-full bg-slate-950/50 border border-slate-700 rounded-lg px-4 py-3 text-blue-400 font-semibold focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all" placeholder="Ej: 50">
+                        <span class="absolute right-4 top-3 text-slate-500 text-sm font-medium">m</span>
+                    </div>
+                </div>
+
+                <!-- Aislación -->
+                <div class="space-y-2">
+                    <label for="insulation" class="block text-sm font-medium text-slate-400">Tipo de Aislación</label>
+                    <select id="insulation" class="w-full bg-slate-950/50 border border-slate-700 rounded-lg px-4 py-3 text-blue-400 font-medium appearance-none focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                        <option value="PVC">PVC (70°C)</option>
+                        <option value="XLPE" selected>XLPE (90°C)</option>
+                    </select>
+                </div>
+
+                <!-- Método de Instalación -->
+                <div class="space-y-2">
+                    <label for="installation-method" class="block text-sm font-medium text-slate-400">Método de Instalación</label>
+                    <select id="installation-method" class="w-full bg-slate-950/50 border border-slate-700 rounded-lg px-4 py-3 text-blue-400 font-medium appearance-none focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                        <option value="direct">Directamente Enterrado</option>
+                        <option value="duct">En Conducto Enterrado</option>
+                        <option value="tray">Bandeja Perforada</option>
+                        <option value="air">Al Aire (Grampas)</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <!-- Área de Resultados #results-display -->
+        <div id="results-display" class="bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl flex flex-col justify-center h-full">
+            <div class="text-center mb-8">
+                <h2 class="text-sm font-semibold tracking-widest text-slate-500 uppercase mb-4">Sección Recomendada</h2>
+                <div class="flex items-baseline justify-center gap-2">
+                    <span id="final-section" class="text-7xl font-black text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.4)]">--</span>
+                    <span class="text-2xl font-bold text-emerald-500/50">mm²</span>
+                </div>
+                <p id="criteria-msg" class="text-xs text-slate-500 mt-4 h-4"></p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-800/50 pt-8">
+                <!-- In -->
+                <div class="bg-slate-950/50 border border-slate-800/50 rounded-xl p-4 text-center">
+                    <div class="text-xs text-slate-500 mb-1">Cte. Nominal (In)</div>
+                    <div class="text-xl font-bold text-blue-400"><span id="current-nominal">--</span> <span class="text-sm">A</span></div>
+                </div>
+                <!-- Iz -->
+                <div class="bg-slate-950/50 border border-slate-800/50 rounded-xl p-4 text-center">
+                    <div class="text-xs text-slate-500 mb-1">Cte. Admisible (Iz)</div>
+                    <div class="text-xl font-bold text-blue-400"><span id="admissible-current">--</span> <span class="text-sm">A</span></div>
+                </div>
+                <!-- dV -->
+                <div class="bg-slate-950/50 border border-slate-800/50 rounded-xl p-4 text-center">
+                    <div class="text-xs text-slate-500 mb-1">Caída Tensión (ΔV)</div>
+                    <div class="text-xl font-bold text-blue-400"><span id="voltage-drop">--</span> <span class="text-sm">%</span></div>
+                </div>
+            </div>
+            
+            <div class="mt-8 text-[11px] text-slate-600 space-y-1">
+                <p>Constantes: V = 380V | cos φ = 0.85 | η = 0.88 | ρ = 0.021 Ω.mm²/m (Cu)</p>
+                <p>Criterio límite ΔV ≤ 3% (11.4V)</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
